@@ -49,6 +49,7 @@
     "webpack-merge": "^1.1.2"
   },
   "dependencies": {
+    "moment": "^2.29.1",
     "v-tooltip": "^2.0.0-rc.32"
   }
 }

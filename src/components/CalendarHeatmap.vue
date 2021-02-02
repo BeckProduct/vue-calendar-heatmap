@@ -23,21 +23,23 @@
 
       g.vch__legend__wrapper(:transform="legendWrapperTransform[position]")
         text(
-          :x="vertical ? SQUARE_SIZE * 1.25 : -25"
-          :y="vertical ? 8 : SQUARE_SIZE + 1"
+          :x="vertical ? SQUARE_SIZE * 1.25 : -25",
+          :y="vertical ? 8 : SQUARE_SIZE + 1",
+          :style="this.showLegend ? '' : 'display: none;'"
         ) {{ lo.less }}
         rect(
-          v-for="(color, index) in rangeColor",
+          v-for="(color, index) in this.showLegend ? rangeColor : 0",
           :key="index",
           :style="{ fill: color }",
           :width="SQUARE_SIZE - SQUARE_BORDER_SIZE",
           :height="SQUARE_SIZE - SQUARE_BORDER_SIZE",
           :x="vertical ? SQUARE_SIZE * 1.75 : SQUARE_SIZE * index",
-          :y="vertical ? SQUARE_SIZE * (index + 1) : 5"
+          :y="vertical ? SQUARE_SIZE * (index + 1) : 5",
         )
         text(
           :x="vertical ? SQUARE_SIZE * 1.25 : SQUARE_SIZE * rangeColor.length + 1",
-          :y="vertical ? SQUARE_SIZE * (rangeColor.length + 2) - SQUARE_BORDER_SIZE : SQUARE_SIZE + 1"
+          :y="vertical ? SQUARE_SIZE * (rangeColor.length + 2) - SQUARE_BORDER_SIZE : SQUARE_SIZE + 1",
+          :style="this.showLegend ? '' : 'display: none;'"
           ) {{ lo.more }}
       g.vch__year__wrapper(:transform="yearWrapperTransform")
         g.vch__month__wrapper(
@@ -52,7 +54,7 @@
             :transform="getDayPosition(dayIndex)"
             :width="SQUARE_SIZE - SQUARE_BORDER_SIZE",
             :height="SQUARE_SIZE - SQUARE_BORDER_SIZE",
-            :style="{ fill: rangeColor[day.colorIndex] }",
+            :style="{ fill: day.attendance != null ? day.attendance[attendanceType()].color : rangeColor[day.colorIndex] }",
             v-tooltip="tooltipOptions(day)",
             @click="$emit('day-click', day)"
           )
@@ -103,6 +105,15 @@ export default {
     noDataText: {
       type: String,
       default: null
+    },
+    showLegend: {
+      type: Boolean,
+      default: true
+    },
+    isDaily: {
+      type: Boolean,
+      required: true,
+      default: false
     }
   },
 
@@ -120,7 +131,7 @@ export default {
       return `translate(${this.tooltipX}, ${this.tooltipY})`
     },
     heatmap () {
-      return new Heatmap(this.endDate, this.values, this.max)
+      return new Heatmap(this.endDate, this.values, this.max, this.showLegend)
     },
     width () {
       return {
@@ -183,7 +194,12 @@ export default {
   methods: {
     tooltipOptions (day) {
       if (this.tooltip) {
-        if (day.count != null) {
+        if (day.attendance != null) {
+          return {
+            content: `${this.lo.days[day.date.getDay()]}, ${this.lo.months[day.date.getMonth()]} ${day.date.getDate()} ${day.date.getFullYear()} (${ this.attendanceType() }): <b>${day.attendance[this.attendanceType()].state}<b>`,
+            delay: { show: 150, hide: 50 }
+          }
+        } else if (day.count != null) {
           return {
             content: `<b>${day.count} ${this.tooltipUnit}</b> ${this.lo.on} ${this.lo.months[day.date.getMonth()]} ${day.date.getDate()}, ${day.date.getFullYear()}`,
             delay: { show: 150, hide: 50 }
@@ -214,7 +230,10 @@ export default {
       position.x = this.vertical ? 3 : this.SQUARE_SIZE * month.index
       position.y = this.vertical ? (this.SQUARE_SIZE * this.heatmap.weekCount) - (this.SQUARE_SIZE * (month.index)) - (this.SQUARE_SIZE / 4) : this.SQUARE_SIZE - this.SQUARE_BORDER_SIZE
       return position
-    }
+    },
+    attendanceType () {
+      return this.isDaily ? 'daily' : 'course'
+    },
   }
 }
 </script>

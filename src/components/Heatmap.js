@@ -1,21 +1,28 @@
 import { DAYS_IN_ONE_YEAR, DAYS_IN_WEEK } from './consts'
+import moment from 'moment'
 
 export default class CalendarHeatmap {
-  constructor (endDate, values, max) {
+  constructor (endDate, values, max, showLegend) {
     this.endDate = this._parseDate(endDate)
     this.max = max || Math.ceil((Math.max(...values.map(day => day.count)) / 5) * 4)
     this.startDate = this._shiftDate(endDate, -DAYS_IN_ONE_YEAR)
     this.values = values
+    this.showLegend = showLegend
   }
 
   get activities () {
-    return this.values.reduce((newValues, day) => {
-      newValues[this._keyDayParser(day.date)] = {
+    const result = this.values.reduce((newValues, day) => {
+      const dateString = this._keyDayParser(day.date)
+      newValues[dateString] = {
+        referenceDate: day.date && new Date(day.date),
         count: day.count,
+        attendance: day.attendance,
         colorIndex: this.getColorIndex(day.count)
       }
       return newValues
     }, {})
+
+    return result
   }
 
   get weekCount () {
@@ -24,7 +31,7 @@ export default class CalendarHeatmap {
 
   get calendar () {
     let date = this._shiftDate(this.startDate, -this.getCountEmptyDaysAtStart())
-    return Array.from({ length: this.weekCount },
+    const result = Array.from({ length: this.weekCount },
       () => Array.from({ length: DAYS_IN_WEEK },
         () => {
           let dDate = new Date(date.getFullYear(), date.getMonth(), date.getDate())
@@ -33,11 +40,14 @@ export default class CalendarHeatmap {
           return {
             date: dDate,
             count: dayValues ? dayValues.count : null,
+            attendance: dayValues ? dayValues.attendance : null,
             colorIndex: dayValues ? dayValues.colorIndex : 0
           }
         }
       )
     )
+
+    return result
   }
 
   get firstFullWeekOfMonths () {
@@ -88,7 +98,14 @@ export default class CalendarHeatmap {
   }
 
   _keyDayParser (date) {
-    let day = this._parseDate(date)
+    let day = this._parseDate(this._normalizeDate(date))
     return `${day.getFullYear()}-${day.getMonth()}-${day.getDate()}`
+  }
+
+  _normalizeDate (date) {
+    if (date instanceof Date) {
+      date = moment(date.toDateString(), 'ddd MMM DD YYYY hh:mm:ss').format('YYYY-MM-DD')
+    }
+    return date
   }
 }
