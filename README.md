@@ -105,17 +105,58 @@ Vue.component('calendarHeatmap', VueCalendarHeatmap.CalendarHeatmap)
 ## Availables props
 
 ### **values** - `values` - _required_
+
 Array of objects with `date` and `count` keys. `date` values can be a date parseable string, a millisecond timestamp, or a Date object. `count` value should be a number.
+
 ``` html
  <calendar-heatmap :values="[{ date: '2018-9-22', count: 6 }, ...]" ... />
 ```
+
+This has been customized to also accept an array of objects with `attendance` data.
+
+``` html
+ <calendar-heatmap :values="[
+  {
+    date: '2021-02-04',
+    attendance: {
+      course: {
+        courseName: String,
+        extCourseId: String,
+        state: String (one of [Present, Late, Absent, Excused, 'Not Taken']),
+        color: HexString (6 chars)
+        virtual: Boolean,
+        comment: String,
+      },
+      daily: {
+        state: String (one of [Present, Late, Absent, Excused, 'Not Taken']),
+        color: HexString (6 chars)
+        virtual: Boolean,
+        comment: String,
+      },
+    },
+  }, ...
+ ]" ... />
+
+```
+
 ### **endDate** - `end-date` - _required_
+
 Can be a date parseable string, a millisecond timestamp, or a Date object. The calendar will start automatically one year before this date.
+
 ``` html
  <calendar-heatmap :end-date="2018-9-22" ... />
 ```
 
+### **showLegend** `show-legend`
+
+Boolean. If `true` the legend will be hidden; if `false` the legend will be shown
+
+```html
+ <calendar-heatmap :show-legend="false" ... />
+```
+
 ### **rangeColor** - `range-color`
+
 Array of 6 strings which represents the colors of the progression.
 
 - The color at `rangeColor[0]` will always represent the values for a `count: null`
@@ -129,30 +170,41 @@ Default value is equal to the example.
 ```
 
 ### **max** - `max`
+
 Any number which should be the max color.
+
 ``` html
  <calendar-heatmap :max="10" ... />
 ```
 
 ### **noDataText** - `no-data-text`
+
 Tooltip text to display on days without data. `null` by default (shows no tooltip at all).
+
 ``` html
  <calendar-heatmap :no-data-text="no data for this day" ... />
 ```
 
 ### **tooltip** - `tooltip`
+
 Boolean for enable/disable tooltip on square hover. `true` by default.
+
 ``` html
  <calendar-heatmap :tooltip="false" ... />
 ```
+
 ### **tooltipUnit** - `tooltip-unit`
+
 String representing heatmap's unit of measure. Value is `"contributions"` by default.
+
 ``` html
  <calendar-heatmap tooltip-unit="stars" ... />
 ```
 
 ### **vertical** - `vertical`
+
 Boolean to switch to vertical mode. `false` by default.
+
 ``` html
  <calendar-heatmap :vertical="true" ... />
 ```
