@@ -54,7 +54,7 @@
             :transform="getDayPosition(dayIndex)"
             :width="SQUARE_SIZE - SQUARE_BORDER_SIZE",
             :height="SQUARE_SIZE - SQUARE_BORDER_SIZE",
-            :style="{ fill: day.attendance != null ? day.attendance[attendanceType()].color : rangeColor[day.colorIndex] }",
+            :style="{ fill: day.attendance != null ? day.attendance.color : rangeColor[day.colorIndex] }",
             v-tooltip="tooltipOptions(day)",
             @click="$emit('day-click', day)"
           )
@@ -196,7 +196,7 @@ export default {
       if (this.tooltip) {
         if (day.attendance != null) {
           return {
-            content: `${this.lo.days[day.date.getDay()]}, ${this.lo.months[day.date.getMonth()]} ${day.date.getDate()} ${day.date.getFullYear()} (${ this.attendanceType() }): <b>${day.attendance[this.attendanceType()].state}<b>`,
+            content: `${this.lo.days[day.date.getDay()]}, ${this.lo.months[day.date.getMonth()]} ${day.date.getDate()} ${day.date.getFullYear()} (${ this.attendanceType() }): <b>${day.attendance.state}<b>`,
             delay: { show: 150, hide: 50 }
           }
         } else if (day.count != null) {
